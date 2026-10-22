@@ -1,3 +1,40 @@
+> **AKTUÁLNA VERZIA v1.1 (22. 10. 2026):** Použite model `gpt-6-luna`, `OPENAI_REASONING_EFFORT = "medium"` a pravidlá zo súboru `tutor_rules.txt`. Staršie príklady nastavenia Sol/low uvedené ďalej sú historické; prednosť má tento postup a `NAVOD_PEDAGOGIKA_v1_1.md`.
+
+# Verzia s OpenAI API
+
+Táto verzia **používa OpenAI Responses API namiesto Gemini**. Čítačka, lokálne JSON
+texty, vyhľadávanie, výklad kliknutého odseku a 20-krokový sokratovský dialóg
+sú zachované. Do API sa prenášajú iba relevantné výňatky a kontext spracúvanej
+požiadavky, nie celý JSON automaticky. Model nemá pripojené vyhľadávanie na webe.
+
+## Rýchle nasadenie
+
+1. Nahrajte obsah *tohto* priečinka na GitHub (všetky súbory z projektu,
+   vrátane `openai_backend.py`, `requirements.txt` a súborov JSON).
+2. V Streamlit Community Cloud otvorte existujúcu aplikáciu, prípadne vytvorte
+   novú, a nastavte správny repozitár, vetvu `main`/`master` a hlavný súbor `app.py`.
+3. V **App settings → Secrets** zadajte (skutočný kľúč nikdy nevkladajte na GitHub):
+
+```toml
+OPENAI_API_KEY = "sk-..."
+OPENAI_MODEL = "gpt-6.1-sol"
+OPENAI_REASONING_EFFORT = "low"
+OPENAI_TIMEOUT_MS = 120000
+```
+
+Pre lacnejšiu prevádzku môžete vybrať `gpt-6-luna`, pre náročnejšie diskusie
+`gpt-6.1-sol` a úsilie `medium` alebo `high`. Model musí byť dostupný
+v danom projekte OpenAI API. Predplatné ChatGPT sa za API neúčtuje;
+OpenAI API má vlastné fakturovanie podľa spotreby.
+
+Kľúč vytvoríte na https://platform.openai.com/api-keys
+Cenník: https://platform.openai.com/pricing
+
+**Pozor na autorské práva k plným textom a prekladom**, ak má byť GitHub
+repozitár verejný.
+
+---
+
 # AI tútor – Úvod do analytickej filozofie
 
 Samostatný študijný projekt pre predmet **Úvod do analytickej filozofie**. Streamlit aplikácia sprístupňuje deväť pôvodných dodaných textov, lokálnu čítačku s vyhľadávaním, výklad vybraného odseku prostredníctvom Gemini a 20-krokový sokratovský dialóg.
@@ -22,7 +59,7 @@ Samostatný študijný projekt pre predmet **Úvod do analytickej filozofie**. S
 - **Vyhľadávanie v celom korpuse:** lokálny index, ktorý vráti pasáže a otvorí ich vo vybranom texte.
 - **Výklad:** klik na bežný odsek, citát, tézu, položku zoznamu či Peregrinovu chronologickú tabuľku otvorí AI výklad bez zvýšenia počtu diskusných vstupov.
 - **Sokratovský dialóg:** maximálne 20 **úspešne spracovaných študentských vstupov**. Zvolený rozsah (*jedna štúdia*, *jeden autor* alebo *všetkých deväť textov*) sa uzamkne po prvej otázke. Posledný vstup obsahuje záverečné kritické zhodnotenie práce študenta s argumentmi.
-- **Chyby Gemini API:** pri 429, 503, 404, prístupových problémoch a timeoutoch sa neúspešný vstup **nezapočíta**. Otázku možno vedome zopakovať alebo zrušiť.
+- **Chyby OpenAI API:** pri 429, 503, 404, prístupových problémoch a timeoutoch sa neúspešný vstup **nezapočíta**. Otázku možno vedome zopakovať alebo zrušiť.
 - **Export TXT:** zápis celého dialógu vrátane metadát a hodnotenia.
 
 ## Nasadenie na GitHub + Streamlit Community Cloud
@@ -33,9 +70,9 @@ Samostatný študijný projekt pre predmet **Úvod do analytickej filozofie**. S
 4. V nastaveniach aplikácie (**Settings → Secrets**) vložte hodnoty podľa `.streamlit/secrets.toml.example`:
 
 ```toml
-GEMINI_API_KEY = "VÁŠ_EXISTUJÚCI_KĽÚČ"
-GEMINI_MODEL = "gemini-3.5-flash-lite"
-GEMINI_TIMEOUT_MS = 120000
+OPENAI_API_KEY = "VÁŠ_EXISTUJÚCI_KĽÚČ"
+OPENAI_MODEL = "gpt-6.1-sol"
+OPENAI_TIMEOUT_MS = 120000
 ```
 
 5. Reštartujte aplikáciu po zmene Secrets. Dostupné modely pre vlastný projekt overte v [oficiálnej dokumentácii Gemini](https://ai.google.dev/gemini-api/docs/models). Ak sa objaví chyba `404`, model uvedený v Secrets nie je pre konkrétny projekt prístupný; ak `429`, môže ísť o kvótu.
@@ -49,7 +86,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Pre lokálne API volania uložte svoj skutočný kľúč do *necommitovaného* `.streamlit/secrets.toml`, alebo nastavte premennú prostredia `GEMINI_API_KEY`.
+Pre lokálne API volania uložte svoj skutočný kľúč do *necommitovaného* `.streamlit/secrets.toml`, alebo nastavte premennú prostredia `OPENAI_API_KEY`.
 
 ## Overenie
 
@@ -88,3 +125,8 @@ ai-tutor-uvod-do-analytickej-filozofie/
     ├── test_core.py
     └── test_reader_browser.py
 ```
+
+
+## Pedagogické pravidlá v1.1 (GPT-6 Luna / medium)
+
+Spoločné pedagogické pravidlá pre výklad a dialóg sú v `tutor_rules.txt`. Pôvodné odborné inštrukcie autora zostali zachované v `app.py`; k nim sa automaticky pridá súbor pravidiel. Ak chcete meniť pedagogické správanie, stačí na GitHube upraviť `tutor_rules.txt` a nasadiť aktualizované súbory. Obsah korpusu JSON tým nemeníte. Zmena pravidiel aktualizuje aj kľúč vyrovnávacej pamäte výkladov. Na prvé nasadenie treba nahrať `app.py`, `pedagogical_rules.py`, `tutor_rules.txt` a ostatné bežné súbory. Nevkladajte API kľúč do repozitára. Nastavte ho cez Streamlit Secrets. Konkrétny postup evaluácie obsahuje `SPATNA_VAZBA_A_TESTY.md`. Verzia neobsahuje sledovanie nákladov v študentskom rozhraní.
